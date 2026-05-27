@@ -805,6 +805,9 @@ video {
 .h-9 {
   height: 2.25rem;
 }
+.h-\[18px\] {
+  height: 18px;
+}
 .h-\[320px\] {
   height: 320px;
 }
@@ -816,9 +819,6 @@ video {
 }
 .h-px {
   height: 1px;
-}
-.h-\[18px\] {
-  height: 18px;
 }
 .min-h-screen {
   min-height: 100vh;
@@ -871,6 +871,9 @@ video {
 .w-9 {
   width: 2.25rem;
 }
+.w-\[18px\] {
+  width: 18px;
+}
 .w-\[320px\] {
   width: 320px;
 }
@@ -879,9 +882,6 @@ video {
 }
 .w-full {
   width: 100%;
-}
-.w-\[18px\] {
-  width: 18px;
 }
 .w-px {
   width: 1px;
@@ -936,15 +936,6 @@ video {
   --tw-translate-y: -50%;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
-@keyframes spin {
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
 @keyframes fadeIn {
 
   0% {
@@ -957,6 +948,15 @@ video {
 }
 .animate-fade-in {
   animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes spin {
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 .cursor-default {
   cursor: default;

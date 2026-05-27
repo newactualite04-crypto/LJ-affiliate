@@ -1,9 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
-import { motion } from "framer-motion";
+import { useActionState, useState } from "react";
 import Link from "next/link";
-import { useState } from "react";
 import { TrendingUp, Mail, Lock, User, Eye, EyeOff, Loader2, ArrowLeft, CheckCircle, Sparkles } from "lucide-react";
 import { register } from "@/app/actions/auth";
 
@@ -17,12 +15,7 @@ export default function RegisterPage() {
   if (state.success) {
     return (
       <div className="min-h-screen bg-[#0a0a0b] flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="text-center max-w-sm w-full"
-        >
+        <div className="text-center max-w-sm w-full animate-scale-in">
           <div className="w-16 h-16 rounded-2xl bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-7 h-7 text-green-400" />
           </div>
@@ -37,19 +30,14 @@ export default function RegisterPage() {
           <Link href="/auth/login" className="btn-ghost inline-flex px-6 py-2.5 text-[13px] font-medium">
             Retour à la connexion
           </Link>
-        </motion.div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-[#0a0a0b] flex items-center justify-center p-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-sm"
-      >
+      <div className="w-full max-w-sm animate-fade-up">
         <Link href="/" className="inline-flex items-center gap-2 text-white/35 hover:text-white/65 text-[13px] transition-colors mb-8">
           <ArrowLeft className="w-3.5 h-3.5" />
           Accueil
@@ -79,13 +67,9 @@ export default function RegisterPage() {
 
         {/* Erreur */}
         {state.error && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-5 p-3 rounded-xl bg-[#ff2020]/10 border border-[#ff2020]/20 text-[#ff6060] text-[13px]"
-          >
+          <div className="mb-5 p-3 rounded-xl bg-[#ff2020]/10 border border-[#ff2020]/20 text-[#ff6060] text-[13px] animate-fade-up">
             {state.error}
-          </motion.div>
+          </div>
         )}
 
         <form action={formAction} className="space-y-4">
@@ -180,7 +164,7 @@ export default function RegisterPage() {
             Se connecter
           </Link>
         </p>
-      </motion.div>
+      </div>
     </div>
   );
 }

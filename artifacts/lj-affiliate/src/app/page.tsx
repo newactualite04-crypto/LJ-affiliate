@@ -262,7 +262,7 @@ export default function HomePage() {
                   <div className="flex items-center gap-1">
                     <Star className="w-3 h-3 fill-[#ff2020] text-[#ff2020]" />
                     <span className="text-white/60 font-medium">{p.rating}</span>
-                    <span className="text-white/25 ml-0.5">({p.sales.toLocaleString()})</span>
+                    <span className="text-white/25 ml-0.5">({p.sales.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f")})</span>
                   </div>
                   <div className="font-bold text-white/80">{p.price}</div>
                 </div>
