@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Link as LinkIcon, Copy, ExternalLink, ToggleLeft, ToggleRight, Search } from "lucide-react";
+import { Plus, Link as LinkIcon, Copy, ExternalLink, ToggleLeft, ToggleRight, Search, ArrowUpRight } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/lib/utils";
 
 const mockLinks = [
@@ -17,8 +17,7 @@ export default function LinksPage() {
   const [copied, setCopied] = useState<string | null>(null);
 
   const filtered = mockLinks.filter(l =>
-    l.name.toLowerCase().includes(search.toLowerCase()) ||
-    l.code.toLowerCase().includes(search.toLowerCase())
+    l.name.toLowerCase().includes(search.toLowerCase()) || l.code.toLowerCase().includes(search.toLowerCase())
   );
 
   const copyLink = (code: string) => {
@@ -28,77 +27,91 @@ export default function LinksPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 max-w-[1000px]">
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="flex items-center justify-between"
+      >
         <div>
-          <h1 className="text-2xl font-bold text-white">Mes liens</h1>
-          <p className="text-gray-500 text-sm mt-1">{mockLinks.length} liens d'affiliation</p>
+          <h1 className="text-xl font-semibold text-white tracking-tight">Mes liens</h1>
+          <p className="text-[13px] text-white/40 mt-0.5">{mockLinks.length} liens d'affiliation</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium rounded-xl transition-colors">
-          <Plus className="w-4 h-4" />
+        <button className="btn-red flex items-center gap-2 px-4 py-2.5 text-[13px]">
+          <Plus className="w-3.5 h-3.5" />
           Créer un lien
         </button>
-      </div>
+      </motion.div>
 
+      {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25" />
         <input
           type="text"
-          placeholder="Rechercher un lien..."
+          placeholder="Rechercher par nom ou code..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-gray-900/80 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-brand-500/50 transition-colors"
+          className="input-premium w-full pl-10 pr-4 py-2.5 text-[13px]"
         />
       </div>
 
-      <div className="grid gap-4">
+      {/* Links */}
+      <div className="space-y-2">
         {filtered.map((link, i) => (
           <motion.div
             key={link.id}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.06 }}
-            className="p-5 bg-gray-900/80 border border-white/10 rounded-2xl hover:border-white/20 transition-all"
+            transition={{ delay: i * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            className="relative group p-4 rounded-2xl bg-[#111113] border border-white/[0.06] hover:border-white/[0.1] transition-all"
           >
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.05] to-transparent" />
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-brand-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <LinkIcon className="w-4 h-4 text-brand-400" />
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#ff2020]/10 border border-[#ff2020]/15 flex items-center justify-center flex-shrink-0">
+                  <LinkIcon className="w-4 h-4 text-[#ff5050]" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-white font-semibold">{link.name}</h3>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${link.is_active ? "bg-green-500/10 text-green-400" : "bg-gray-500/10 text-gray-500"}`}>
+                    <h3 className="text-[14px] font-semibold text-white">{link.name}</h3>
+                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${link.is_active ? "bg-green-500/10 text-green-400 border border-green-500/15" : "bg-white/5 text-white/30 border border-white/08"}`}>
                       {link.is_active ? "Actif" : "Inactif"}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <code className="text-xs font-mono text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded">{link.code}</code>
-                    <button onClick={() => copyLink(link.code)} className="text-gray-600 hover:text-gray-300 transition-colors">
-                      {copied === link.code ? <span className="text-green-400 text-xs">Copié !</span> : <Copy className="w-3 h-3" />}
+                    <code className="text-[11px] font-mono text-[#ff5050] bg-[#ff2020]/08 px-2 py-0.5 rounded-md border border-[#ff2020]/10">
+                      {link.code}
+                    </code>
+                    <button onClick={() => copyLink(link.code)} className="text-white/25 hover:text-white/60 transition-colors">
+                      {copied === link.code ? <span className="text-green-400 text-[10px]">Copié !</span> : <Copy className="w-3 h-3" />}
                     </button>
-                    <a href={link.target_url} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-gray-300 transition-colors">
+                    <a href={link.target_url} target="_blank" rel="noopener noreferrer" className="text-white/25 hover:text-white/60 transition-colors">
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-6 text-sm">
+
+              <div className="flex items-center gap-5 sm:gap-6">
                 <div className="text-center">
-                  <div className="text-white font-semibold">{formatNumber(link.clicks)}</div>
-                  <div className="text-gray-500 text-xs">Clics</div>
+                  <div className="text-[15px] font-bold text-white tracking-tight">{formatNumber(link.clicks)}</div>
+                  <div className="text-[10px] text-white/30 uppercase tracking-wide">Clics</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-white font-semibold">{formatNumber(link.conversions)}</div>
-                  <div className="text-gray-500 text-xs">Conv.</div>
+                  <div className="text-[15px] font-bold text-white tracking-tight">{formatNumber(link.conversions)}</div>
+                  <div className="text-[10px] text-white/30 uppercase tracking-wide">Conv.</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-green-400 font-semibold">{formatCurrency(link.revenue)}</div>
-                  <div className="text-gray-500 text-xs">Revenus</div>
+                  <div className="text-[15px] font-bold text-green-400 tracking-tight">{formatCurrency(link.revenue)}</div>
+                  <div className="text-[10px] text-white/30 uppercase tracking-wide">Revenus</div>
                 </div>
-                <button className="text-gray-500 hover:text-brand-400 transition-colors">
-                  {link.is_active ? <ToggleRight className="w-6 h-6 text-brand-400" /> : <ToggleLeft className="w-6 h-6" />}
+                <button className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors">
+                  {link.is_active ? <ToggleRight className="w-5 h-5 text-[#ff5050]" /> : <ToggleLeft className="w-5 h-5" />}
                 </button>
+                <a href="#" className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors">
+                  <ArrowUpRight className="w-4 h-4" />
+                </a>
               </div>
             </div>
           </motion.div>

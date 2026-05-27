@@ -5,129 +5,188 @@ import { Users, DollarSign, Link as LinkIcon, TrendingUp, ArrowUpRight, Shield }
 import StatCard from "@/components/ui/StatCard";
 import { formatCurrency, formatNumber, formatPercent } from "@/lib/utils";
 
-const mockAdminStats = {
-  totalAffiliates: 247,
-  totalRevenue: 128450,
-  totalCommissionsPaid: 38535,
-  activeLinks: 1842,
-  conversionRate: 4.21,
-};
-
 const topAffiliates = [
-  { id: "1", name: "Marie Martin", email: "marie@ex.com", revenue: 12480, conversions: 89, links: 8 },
-  { id: "2", name: "Pierre Durand", email: "pierre@ex.com", revenue: 9870, conversions: 72, links: 5 },
-  { id: "3", name: "Sophie Leclerc", email: "sophie@ex.com", revenue: 8240, conversions: 61, links: 12 },
-  { id: "4", name: "Thomas Bernard", email: "thomas@ex.com", revenue: 7650, conversions: 55, links: 6 },
-  { id: "5", name: "Julie Moreau", email: "julie@ex.com", revenue: 6890, conversions: 49, links: 9 },
+  { id: "1", name: "Marie Martin", conversions: 89, revenue: 12480, rank: 1 },
+  { id: "2", name: "Pierre Durand", conversions: 72, revenue: 9870, rank: 2 },
+  { id: "3", name: "Sophie Leclerc", conversions: 61, revenue: 8240, rank: 3 },
+  { id: "4", name: "Thomas Bernard", conversions: 55, revenue: 7650, rank: 4 },
+  { id: "5", name: "Julie Moreau", conversions: 49, revenue: 6890, rank: 5 },
 ];
 
 const recentActivity = [
-  { id: "1", type: "conversion", user: "Marie Martin", amount: 240, time: "Il y a 2 min" },
-  { id: "2", type: "commission", user: "Pierre Durand", amount: 1120, time: "Il y a 15 min" },
-  { id: "3", type: "signup", user: "Nouveau affilié", amount: 0, time: "Il y a 1h" },
-  { id: "4", type: "conversion", user: "Sophie Leclerc", amount: 180, time: "Il y a 2h" },
+  { id: "1", type: "conversion", user: "Marie Martin", amount: 240, time: "2 min" },
+  { id: "2", type: "commission", user: "Pierre Durand", amount: 1120, time: "15 min" },
+  { id: "3", type: "signup", user: "Nicolas Petit", amount: 0, time: "1h" },
+  { id: "4", type: "conversion", user: "Sophie Leclerc", amount: 180, time: "2h" },
+  { id: "5", type: "paid", user: "Thomas Bernard", amount: 960, time: "3h" },
 ];
+
+const activityConfig = {
+  conversion: { dot: "bg-green-400", label: "Conversion", color: "text-green-400" },
+  commission: { dot: "bg-[#ff5050]", label: "Commission", color: "text-[#ff5050]" },
+  signup: { dot: "bg-amber-400", label: "Inscription", color: "text-amber-400" },
+  paid: { dot: "bg-blue-400", label: "Paiement", color: "text-blue-400" },
+};
+
+const chartBars = [42, 58, 48, 72, 65, 80, 74, 92, 82, 96, 88, 100];
 
 export default function AdminPage() {
   const stats = [
-    { title: "Affiliés actifs", value: formatNumber(mockAdminStats.totalAffiliates), icon: Users, color: "brand" as const },
-    { title: "Revenus totaux", value: formatCurrency(mockAdminStats.totalRevenue), icon: DollarSign, color: "green" as const, change: "23%", changePositive: true },
-    { title: "Commissions versées", value: formatCurrency(mockAdminStats.totalCommissionsPaid), icon: TrendingUp, color: "amber" as const },
-    { title: "Liens actifs", value: formatNumber(mockAdminStats.activeLinks), icon: LinkIcon, color: "brand" as const },
+    { title: "Affiliés actifs", value: formatNumber(247), icon: Users, color: "white" as const },
+    { title: "Revenus totaux", value: formatCurrency(128450), icon: DollarSign, color: "green" as const, change: "23%", changePositive: true },
+    { title: "Commissions versées", value: formatCurrency(38535), icon: TrendingUp, color: "red" as const },
+    { title: "Liens actifs", value: formatNumber(1842), icon: LinkIcon, color: "amber" as const },
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-[1100px]">
+      {/* Header */}
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
+        initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
         className="flex items-center justify-between"
       >
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Shield className="w-5 h-5 text-amber-400" />
-            <h1 className="text-2xl font-bold text-white">Administration</h1>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/15 flex items-center justify-center">
+            <Shield className="w-4 h-4 text-amber-400" />
           </div>
-          <p className="text-gray-500 text-sm">Vue d'ensemble de la plateforme</p>
+          <div>
+            <h1 className="text-xl font-semibold text-white tracking-tight">Administration</h1>
+            <p className="text-[13px] text-white/40">Vue d'ensemble de la plateforme</p>
+          </div>
         </div>
-        <div className="text-sm text-gray-500 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5">
-          Taux global : <span className="text-brand-400 font-semibold">{formatPercent(mockAdminStats.conversionRate)}</span>
+        <div className="flex items-center gap-2 text-[13px] text-white/40 bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-1.5">
+          Taux global
+          <span className="text-[#ff5050] font-semibold">{formatPercent(4.21)}</span>
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {stats.map((stat, i) => <StatCard key={i} {...stat} index={i} />)}
+      {/* Stats */}
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+        {stats.map((s, i) => <StatCard key={i} {...s} index={i} />)}
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      {/* Chart + activity */}
+      <div className="grid lg:grid-cols-3 gap-4">
+        {/* Revenue chart */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-gray-900/80 border border-white/10 rounded-2xl p-6"
+          transition={{ delay: 0.3, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="lg:col-span-2 relative p-5 rounded-2xl bg-[#111113] border border-white/[0.06]"
         >
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-white font-semibold">Top affiliés</h2>
-            <a href="/admin/affiliates" className="flex items-center gap-1 text-brand-400 hover:text-brand-300 text-sm transition-colors">
-              Voir tout <ArrowUpRight className="w-3.5 h-3.5" />
-            </a>
+            <div>
+              <div className="text-[14px] font-semibold text-white">Revenus plateforme</div>
+              <div className="text-[12px] text-white/40 mt-0.5">Sur 12 mois — {formatCurrency(128450)}</div>
+            </div>
+            <div className="flex items-center gap-1.5 text-[11px] text-green-400 bg-green-500/10 border border-green-500/15 px-2.5 py-1 rounded-full">
+              <TrendingUp className="w-3 h-3" />
+              +23%
+            </div>
           </div>
-          <div className="space-y-3">
-            {topAffiliates.map((affiliate, i) => (
+          <div className="flex items-end gap-1.5 h-28">
+            {chartBars.map((h, i) => (
               <motion.div
-                key={affiliate.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + i * 0.07 }}
-                className="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-full bg-brand-500/20 flex items-center justify-center flex-shrink-0">
-                    <span className="text-brand-400 text-xs font-bold">{i + 1}</span>
-                  </div>
-                  <div>
-                    <div className="text-white text-sm font-medium">{affiliate.name}</div>
-                    <div className="text-gray-600 text-xs">{affiliate.conversions} conv. · {affiliate.links} liens</div>
-                  </div>
-                </div>
-                <div className="text-green-400 font-semibold text-sm">{formatCurrency(affiliate.revenue)}</div>
-              </motion.div>
+                key={i}
+                initial={{ scaleY: 0 }}
+                animate={{ scaleY: 1 }}
+                transition={{ delay: 0.35 + i * 0.04, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className="flex-1 rounded-t-sm origin-bottom"
+                style={{
+                  height: `${h}%`,
+                  background: i === chartBars.length - 1
+                    ? "linear-gradient(to top, #ff2020, #ff5050)"
+                    : "rgba(255,32,32,0.18)"
+                }}
+              />
+            ))}
+          </div>
+          <div className="flex justify-between mt-2 text-[10px] text-white/20">
+            {["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"].map(m => (
+              <span key={m}>{m}</span>
             ))}
           </div>
         </motion.div>
 
+        {/* Activity feed */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="bg-gray-900/80 border border-white/10 rounded-2xl p-6"
+          transition={{ delay: 0.35, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="relative p-5 rounded-2xl bg-[#111113] border border-white/[0.06]"
         >
-          <h2 className="text-white font-semibold mb-5">Activité récente</h2>
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+          <div className="text-[14px] font-semibold text-white mb-4">Activité récente</div>
           <div className="space-y-3">
-            {recentActivity.map((activity, i) => (
-              <motion.div
-                key={activity.id}
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + i * 0.07 }}
-                className="flex items-center gap-3 py-2.5 border-b border-white/5 last:border-0"
-              >
-                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${activity.type === "conversion" ? "bg-green-400" : activity.type === "commission" ? "bg-brand-400" : "bg-amber-400"}`} />
-                <div className="flex-1 min-w-0">
-                  <div className="text-white text-sm font-medium">{activity.user}</div>
-                  <div className="text-gray-500 text-xs capitalize">
-                    {activity.type === "conversion" ? "Nouvelle conversion" : activity.type === "commission" ? "Commission versée" : "Inscription"}
+            {recentActivity.map((a, i) => {
+              const cfg = activityConfig[a.type as keyof typeof activityConfig];
+              return (
+                <motion.div
+                  key={a.id}
+                  initial={{ opacity: 0, x: 8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 + i * 0.06 }}
+                  className="flex items-center gap-3 py-2.5 border-b border-white/[0.03] last:border-0"
+                >
+                  <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-medium text-white truncate">{a.user}</div>
+                    <div className="text-[11px] text-white/35">{cfg.label}</div>
                   </div>
-                </div>
-                <div className="text-right flex-shrink-0">
-                  {activity.amount > 0 && <div className="text-white text-sm font-semibold">{formatCurrency(activity.amount)}</div>}
-                  <div className="text-gray-600 text-xs">{activity.time}</div>
-                </div>
-              </motion.div>
-            ))}
+                  <div className="text-right flex-shrink-0">
+                    {a.amount > 0 && <div className={`text-[13px] font-semibold ${cfg.color}`}>{formatCurrency(a.amount)}</div>}
+                    <div className="text-[10px] text-white/25">il y a {a.time}</div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </motion.div>
       </div>
+
+      {/* Top affiliates */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.5 }}
+        className="relative rounded-2xl bg-[#111113] border border-white/[0.06] overflow-hidden"
+      >
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.04]">
+          <div className="text-[14px] font-semibold text-white">Top affiliés</div>
+          <a href="/admin/affiliates" className="flex items-center gap-1 text-[12px] text-[#ff5050] hover:text-[#ff4040] transition-colors">
+            Voir tout <ArrowUpRight className="w-3 h-3" />
+          </a>
+        </div>
+        <div className="divide-y divide-white/[0.03]">
+          {topAffiliates.map((a, i) => (
+            <motion.div
+              key={a.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.45 + i * 0.05 }}
+              className="flex items-center justify-between px-5 py-3.5 hover:bg-white/[0.02] transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-bold ${i === 0 ? "bg-amber-500/20 text-amber-400 border border-amber-500/20" : "bg-white/[0.04] text-white/30 border border-white/[0.06]"}`}>
+                  {a.rank}
+                </div>
+                <div className="w-8 h-8 rounded-xl bg-[#ff2020]/10 border border-[#ff2020]/15 flex items-center justify-center">
+                  <span className="text-[#ff6060] text-[12px] font-bold">{a.name[0]}</span>
+                </div>
+                <div>
+                  <div className="text-[13px] font-semibold text-white">{a.name}</div>
+                  <div className="text-[11px] text-white/30">{a.conversions} conversions</div>
+                </div>
+              </div>
+              <div className="text-[15px] font-bold text-white tracking-tight">{formatCurrency(a.revenue)}</div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
     </div>
   );
 }

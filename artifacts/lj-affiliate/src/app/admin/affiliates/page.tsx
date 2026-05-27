@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Search, UserCheck, UserX, ExternalLink, Mail, TrendingUp } from "lucide-react";
+import { Search, UserCheck, UserX, Mail, TrendingUp, MoreHorizontal } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/lib/utils";
 
 const mockAffiliates = [
@@ -15,107 +15,128 @@ const mockAffiliates = [
   { id: "7", name: "Emma Richard", email: "emma@exemple.com", revenue: 2100, conversions: 18, links: 4, status: "pending", joined: "2024-05-20" },
 ];
 
+const statusCfg = {
+  active: { label: "Actif", dot: "bg-green-400", badge: "bg-green-500/10 text-green-400 border-green-500/15" },
+  suspended: { label: "Suspendu", dot: "bg-red-400", badge: "bg-red-500/10 text-red-400 border-red-500/15" },
+  pending: { label: "En attente", dot: "bg-amber-400", badge: "bg-amber-500/10 text-amber-400 border-amber-500/15" },
+};
+
 export default function AffiliatesPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
 
   const filtered = mockAffiliates.filter(a => {
-    const matchSearch = a.name.toLowerCase().includes(search.toLowerCase()) || a.email.toLowerCase().includes(search.toLowerCase());
-    const matchFilter = filter === "all" || a.status === filter;
-    return matchSearch && matchFilter;
+    const match = a.name.toLowerCase().includes(search.toLowerCase()) || a.email.toLowerCase().includes(search.toLowerCase());
+    const filt = filter === "all" || a.status === filter;
+    return match && filt;
   });
 
-  const statusConfig = {
-    active: { label: "Actif", class: "bg-green-500/10 text-green-400 border-green-500/20" },
-    suspended: { label: "Suspendu", class: "bg-red-500/10 text-red-400 border-red-500/20" },
-    pending: { label: "En attente", class: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
-  };
+  const filters = [
+    { key: "all", label: "Tous", count: mockAffiliates.length },
+    { key: "active", label: "Actifs", count: mockAffiliates.filter(a => a.status === "active").length },
+    { key: "suspended", label: "Suspendus", count: mockAffiliates.filter(a => a.status === "suspended").length },
+    { key: "pending", label: "En attente", count: mockAffiliates.filter(a => a.status === "pending").length },
+  ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Gestion des affiliés</h1>
-        <p className="text-gray-500 text-sm mt-1">{mockAffiliates.length} affiliés enregistrés</p>
-      </div>
+    <div className="space-y-6 max-w-[1100px]">
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
+        <h1 className="text-xl font-semibold text-white tracking-tight">Gestion des affiliés</h1>
+        <p className="text-[13px] text-white/40 mt-0.5">{mockAffiliates.length} affiliés enregistrés</p>
+      </motion.div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
+      {/* Filters + Search */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25" />
           <input
             type="text"
-            placeholder="Rechercher un affilié..."
+            placeholder="Rechercher par nom ou email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-gray-900/80 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-brand-500/50 transition-colors"
+            className="input-premium w-full pl-10 pr-4 py-2.5 text-[13px]"
           />
         </div>
-        <div className="flex gap-2">
-          {["all", "active", "suspended", "pending"].map(f => (
+        <div className="flex gap-1.5">
+          {filters.map(f => (
             <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${filter === f ? "bg-brand-500 text-white" : "bg-white/5 text-gray-400 hover:text-white border border-white/10"}`}
+              key={f.key}
+              onClick={() => setFilter(f.key)}
+              className={`px-3 py-2 rounded-xl text-[12px] font-medium transition-all flex items-center gap-1.5 ${filter === f.key ? "btn-red" : "btn-ghost"}`}
             >
-              {f === "all" ? "Tous" : f === "active" ? "Actifs" : f === "suspended" ? "Suspendus" : "En attente"}
+              {f.label}
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-md ${filter === f.key ? "bg-white/20" : "bg-white/[0.05]"}`}>{f.count}</span>
             </button>
           ))}
         </div>
-      </div>
+      </motion.div>
 
-      <div className="bg-gray-900/80 border border-white/10 rounded-2xl overflow-hidden">
+      {/* Table */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15, duration: 0.5 }}
+        className="relative rounded-2xl bg-[#111113] border border-white/[0.06] overflow-hidden"
+      >
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-white/10">
-                <th className="p-4 text-left text-gray-500 text-xs font-medium uppercase tracking-wide">Affilié</th>
-                <th className="p-4 text-right text-gray-500 text-xs font-medium uppercase tracking-wide">Revenus</th>
-                <th className="p-4 text-right text-gray-500 text-xs font-medium uppercase tracking-wide">Conv.</th>
-                <th className="p-4 text-right text-gray-500 text-xs font-medium uppercase tracking-wide">Liens</th>
-                <th className="p-4 text-center text-gray-500 text-xs font-medium uppercase tracking-wide">Statut</th>
-                <th className="p-4 text-center text-gray-500 text-xs font-medium uppercase tracking-wide">Actions</th>
+              <tr className="border-b border-white/[0.04]">
+                {["Affilié", "Revenus", "Conversions", "Liens", "Statut", ""].map((h, i) => (
+                  <th key={i} className={`px-5 py-3 text-[11px] font-medium text-white/25 uppercase tracking-wider ${i === 0 ? "text-left" : i === 4 ? "text-center" : i === 5 ? "" : "text-right"}`}>
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
-              {filtered.map((affiliate, i) => {
-                const cfg = statusConfig[affiliate.status as keyof typeof statusConfig];
+            <tbody>
+              {filtered.map((a, i) => {
+                const cfg = statusCfg[a.status as keyof typeof statusCfg];
                 return (
                   <motion.tr
-                    key={affiliate.id}
-                    initial={{ opacity: 0, y: 8 }}
+                    key={a.id}
+                    initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                    className="hover:bg-white/5 transition-colors"
+                    transition={{ delay: 0.2 + i * 0.04 }}
+                    className="border-b border-white/[0.03] last:border-0 hover:bg-white/[0.02] transition-colors group"
                   >
-                    <td className="p-4">
+                    <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-brand-500/20 flex items-center justify-center flex-shrink-0">
-                          <span className="text-brand-400 font-semibold text-sm">{affiliate.name[0]}</span>
+                        <div className="w-8 h-8 rounded-xl bg-[#ff2020]/10 border border-[#ff2020]/15 flex items-center justify-center flex-shrink-0">
+                          <span className="text-[#ff6060] text-[12px] font-bold">{a.name[0]}</span>
                         </div>
                         <div>
-                          <div className="text-white text-sm font-medium">{affiliate.name}</div>
-                          <div className="text-gray-600 text-xs">{affiliate.email}</div>
+                          <div className="text-[13px] font-semibold text-white">{a.name}</div>
+                          <div className="text-[11px] text-white/35">{a.email}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="p-4 text-right text-green-400 font-semibold text-sm">{formatCurrency(affiliate.revenue)}</td>
-                    <td className="p-4 text-right text-gray-300 text-sm">{formatNumber(affiliate.conversions)}</td>
-                    <td className="p-4 text-right text-gray-300 text-sm">{affiliate.links}</td>
-                    <td className="p-4 text-center">
-                      <span className={`inline-block text-xs font-medium px-2.5 py-1 rounded-full border ${cfg.class}`}>{cfg.label}</span>
+                    <td className="px-5 py-4 text-right text-[14px] font-bold text-white">{formatCurrency(a.revenue)}</td>
+                    <td className="px-5 py-4 text-right text-[13px] text-white/60">{formatNumber(a.conversions)}</td>
+                    <td className="px-5 py-4 text-right text-[13px] text-white/60">{a.links}</td>
+                    <td className="px-5 py-4 text-center">
+                      <span className={`inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full border ${cfg.badge}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+                        {cfg.label}
+                      </span>
                     </td>
-                    <td className="p-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <button className="p-1.5 rounded-lg text-gray-500 hover:text-brand-400 hover:bg-brand-500/10 transition-colors" title="Voir stats">
-                          <TrendingUp className="w-4 h-4" />
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button className="p-1.5 rounded-lg text-white/30 hover:text-[#ff5050] hover:bg-[#ff2020]/08 transition-colors" title="Stats">
+                          <TrendingUp className="w-3.5 h-3.5" />
                         </button>
-                        <button className="p-1.5 rounded-lg text-gray-500 hover:text-brand-400 hover:bg-brand-500/10 transition-colors" title="Envoyer email">
-                          <Mail className="w-4 h-4" />
+                        <button className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors" title="Email">
+                          <Mail className="w-3.5 h-3.5" />
                         </button>
-                        <button className="p-1.5 rounded-lg text-gray-500 hover:text-green-400 hover:bg-green-500/10 transition-colors" title="Activer">
-                          <UserCheck className="w-4 h-4" />
+                        <button className="p-1.5 rounded-lg text-white/30 hover:text-green-400 hover:bg-green-500/08 transition-colors" title="Activer">
+                          <UserCheck className="w-3.5 h-3.5" />
                         </button>
-                        <button className="p-1.5 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Suspendre">
-                          <UserX className="w-4 h-4" />
+                        <button className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/08 transition-colors" title="Suspendre">
+                          <UserX className="w-3.5 h-3.5" />
+                        </button>
+                        <button className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors">
+                          <MoreHorizontal className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </td>
@@ -125,7 +146,7 @@ export default function AffiliatesPage() {
             </tbody>
           </table>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
