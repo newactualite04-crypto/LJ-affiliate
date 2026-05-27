@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   TrendingUp, LayoutDashboard, Link as LinkIcon, BarChart3,
   DollarSign, Settings, LogOut, Menu, X, Shield, Bell, ChevronRight
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { logout } from "@/app/actions/auth";
 import { cn } from "@/lib/utils";
 
 const affiliateNav = [
@@ -31,21 +31,15 @@ interface DashboardLayoutProps {
   isAdmin?: boolean;
   userEmail?: string;
   userName?: string;
+  affiliateCode?: string;
 }
 
-export default function DashboardLayout({ children, isAdmin, userEmail, userName }: DashboardLayoutProps) {
+export default function DashboardLayout({
+  children, isAdmin, userEmail, userName, affiliateCode
+}: DashboardLayoutProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const nav = isAdmin ? adminNav : affiliateNav;
-
-  const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/");
-    router.refresh();
-  };
-
   const initial = (userName || userEmail || "U")[0].toUpperCase();
 
   const SidebarContent = () => (
@@ -91,17 +85,26 @@ export default function DashboardLayout({ children, isAdmin, userEmail, userName
               {isActive && (
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-[#ff2020] rounded-full glow-red-sm" />
               )}
-              <item.icon
-                className={cn("w-4 h-4 flex-shrink-0 transition-colors",
-                  isActive ? "text-[#ff4040]" : "text-white/30 group-hover:text-white/60"
-                )}
-              />
+              <item.icon className={cn(
+                "w-4 h-4 flex-shrink-0 transition-colors",
+                isActive ? "text-[#ff4040]" : "text-white/30 group-hover:text-white/60"
+              )} />
               <span className="flex-1">{item.label}</span>
               {isActive && <ChevronRight className="w-3 h-3 text-[#ff4040]/50" />}
             </Link>
           );
         })}
       </nav>
+
+      {/* Affiliate code (non-admin) */}
+      {!isAdmin && affiliateCode && (
+        <div className="px-3 pb-2">
+          <div className="p-3 rounded-xl bg-[#ff2020]/05 border border-[#ff2020]/10">
+            <div className="text-[10px] font-semibold text-white/25 uppercase tracking-wider mb-1">Mon code affilié</div>
+            <div className="font-mono text-[13px] font-bold text-[#ff5050]">{affiliateCode}</div>
+          </div>
+        </div>
+      )}
 
       {/* User */}
       <div className="p-3 border-t border-white/[0.04]">
@@ -114,13 +117,15 @@ export default function DashboardLayout({ children, isAdmin, userEmail, userName
             <div className="text-white/30 text-[11px] truncate">{userEmail}</div>
           </div>
         </div>
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium text-white/35 hover:text-red-400 hover:bg-red-500/5 transition-all duration-200"
-        >
-          <LogOut className="w-4 h-4" />
-          Déconnexion
-        </button>
+        <form action={logout}>
+          <button
+            type="submit"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium text-white/35 hover:text-red-400 hover:bg-red-500/5 transition-all duration-200"
+          >
+            <LogOut className="w-4 h-4" />
+            Déconnexion
+          </button>
+        </form>
       </div>
     </div>
   );
@@ -191,7 +196,7 @@ export default function DashboardLayout({ children, isAdmin, userEmail, userName
           <div className="flex items-center gap-2 ml-auto">
             <button className="relative p-2 rounded-lg text-white/35 hover:text-white hover:bg-white/[0.05] transition-colors">
               <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#ff2020] rounded-full glow-red-sm" />
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#ff2020] rounded-full" />
             </button>
             <div className="w-7 h-7 rounded-lg bg-[#ff2020]/15 border border-[#ff2020]/20 flex items-center justify-center">
               <span className="text-[#ff6060] text-xs font-bold">{initial}</span>

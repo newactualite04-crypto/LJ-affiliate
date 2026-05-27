@@ -1,43 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { TrendingUp, Mail, Lock, Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { login } from "@/app/actions/auth";
+import { useState } from "react";
+
+const initialState = { error: null as string | null };
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [state, formAction, isPending] = useActionState(login, initialState);
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      setError("Email ou mot de passe incorrect");
-      setLoading(false);
-    } else {
-      router.push("/dashboard");
-      router.refresh();
-    }
-  };
+  /* Afficher l'erreur venant du searchParam (ex: lien expiré) */
+  const searchError = typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search).get("error")
+    : null;
 
   return (
     <div className="min-h-screen bg-[#0a0a0b] flex">
-      {/* Left panel */}
+
+      {/* ── Panel gauche ── */}
       <div className="hidden lg:flex flex-1 relative overflow-hidden bg-[#0d0d0f] border-r border-white/[0.04]">
         <div className="absolute inset-0 bg-grid opacity-60" />
-        <div className="absolute inset-0" style={{
+        <div className="absolute inset-0 pointer-events-none" style={{
           background: "radial-gradient(ellipse at 30% 50%, rgba(255,32,32,0.08) 0%, transparent 60%)"
         }} />
+
         <div className="relative z-10 flex flex-col justify-between h-full p-12">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-[#ff2020] flex items-center justify-center glow-red-sm">
@@ -47,45 +38,45 @@ export default function LoginPage() {
           </Link>
 
           <div>
-            <div className="text-4xl font-bold tracking-tighter mb-4">
+            <div className="text-[38px] font-bold tracking-[-0.04em] leading-[0.95] mb-4">
               Gérez votre affiliation
               <br />
               <span className="text-gradient-red">avec précision.</span>
             </div>
-            <p className="text-white/45 leading-relaxed max-w-sm">
-              Rejoignez 2 400+ affiliés qui utilisent LJ Affiliate pour suivre leurs performances et maximiser leurs revenus.
+            <p className="text-[14px] text-white/40 leading-relaxed max-w-sm mb-8">
+              Rejoignez 12 400+ affiliés qui utilisent LJ Affiliate pour générer des revenus passifs en promouvant des produits digitaux.
             </p>
-            <div className="mt-8 grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               {[
-                { val: "€1.2M+", label: "Revenus générés" },
-                { val: "4.8%", label: "Taux de conversion" },
-                { val: "18K+", label: "Liens actifs" },
+                { val: "€2.8M+", label: "Revenus distribués" },
+                { val: "4.9%", label: "Taux de conversion" },
+                { val: "340+", label: "Produits disponibles" },
                 { val: "99.9%", label: "Uptime garanti" },
               ].map((s, i) => (
                 <div key={i} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4">
-                  <div className="text-2xl font-bold tracking-tight text-white">{s.val}</div>
-                  <div className="text-xs text-white/40 mt-0.5">{s.label}</div>
+                  <div className="text-[22px] font-bold tracking-tight text-white">{s.val}</div>
+                  <div className="text-[11px] text-white/35 mt-0.5">{s.label}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 text-white/25 text-sm">
+          <div className="flex items-center gap-1.5 text-[12px] text-white/25">
             <div className="dot-green" />
             Tous les systèmes opérationnels
           </div>
         </div>
       </div>
 
-      {/* Right panel */}
+      {/* ── Panel droit ── */}
       <div className="flex-1 flex items-center justify-center p-6">
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
           className="w-full max-w-sm"
         >
-          <Link href="/" className="inline-flex items-center gap-2 text-white/40 hover:text-white/70 text-sm transition-colors mb-8">
+          <Link href="/" className="inline-flex items-center gap-2 text-white/35 hover:text-white/65 text-[13px] transition-colors mb-8">
             <ArrowLeft className="w-3.5 h-3.5" />
             Accueil
           </Link>
@@ -97,70 +88,85 @@ export default function LoginPage() {
             <span className="font-bold text-[15px]">LJ Affiliate</span>
           </div>
 
-          <h1 className="text-2xl font-bold tracking-tight mb-1">Bon retour</h1>
-          <p className="text-white/45 text-sm mb-8">Connectez-vous à votre espace affilié</p>
+          <h1 className="text-[24px] font-bold tracking-tight mb-1">Bon retour</h1>
+          <p className="text-[13px] text-white/40 mb-8">Connectez-vous à votre espace affilié</p>
 
-          {error && (
+          {/* Erreurs */}
+          {(state.error || searchError) && (
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-5 p-3 rounded-lg bg-[#ff2020]/10 border border-[#ff2020]/20 text-[#ff6060] text-sm"
+              className="mb-5 p-3 rounded-xl bg-[#ff2020]/10 border border-[#ff2020]/20 text-[#ff6060] text-[13px]"
             >
-              {error}
+              {state.error || (searchError === "auth_error" ? "Lien expiré. Veuillez vous reconnecter." : "Une erreur s'est produite.")}
             </motion.div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form ref={formRef} action={formAction} className="space-y-4">
+            {/* Email */}
             <div>
-              <label className="block text-xs font-medium text-white/50 mb-1.5 uppercase tracking-wide">Email</label>
+              <label className="block text-[11px] font-semibold text-white/40 mb-1.5 uppercase tracking-wider">
+                Email
+              </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25 pointer-events-none" />
                 <input
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  name="email"
                   required
+                  autoComplete="email"
                   placeholder="vous@exemple.com"
-                  className="input-premium w-full pl-10 pr-4 py-3 text-sm"
+                  className="input-premium w-full pl-10 pr-4 py-3 text-[13px]"
                 />
               </div>
             </div>
+
+            {/* Mot de passe */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-medium text-white/50 uppercase tracking-wide">Mot de passe</label>
-                <a href="#" className="text-xs text-[#ff6060] hover:text-[#ff4040] transition-colors">Oublié ?</a>
+                <label className="text-[11px] font-semibold text-white/40 uppercase tracking-wider">
+                  Mot de passe
+                </label>
+                <a href="#" className="text-[12px] text-[#ff6060] hover:text-[#ff4040] transition-colors">
+                  Oublié ?
+                </a>
               </div>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25 pointer-events-none" />
                 <input
                   type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  name="password"
                   required
+                  autoComplete="current-password"
                   placeholder="••••••••"
-                  className="input-premium w-full pl-10 pr-11 py-3 text-sm"
+                  className="input-premium w-full pl-10 pr-11 py-3 text-[13px]"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/50 transition-colors"
+                  tabIndex={-1}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
+
             <button
               type="submit"
-              disabled={loading}
-              className="btn-red w-full py-3 text-sm flex items-center justify-center gap-2 mt-2"
+              disabled={isPending}
+              className="btn-red w-full py-3 text-[13px] font-semibold flex items-center justify-center gap-2 mt-2"
             >
-              {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Connexion...</> : "Se connecter"}
+              {isPending
+                ? <><Loader2 className="w-4 h-4 animate-spin" /> Connexion...</>
+                : "Se connecter"
+              }
             </button>
           </form>
 
-          <p className="text-center text-white/35 text-sm mt-6">
+          <p className="text-center text-[13px] text-white/30 mt-6">
             Pas encore de compte ?{" "}
-            <Link href="/auth/register" className="text-[#ff6060] hover:text-[#ff4040] font-medium transition-colors">
+            <Link href="/auth/register" className="text-[#ff6060] hover:text-[#ff4040] font-semibold transition-colors">
               Créer un compte
             </Link>
           </p>

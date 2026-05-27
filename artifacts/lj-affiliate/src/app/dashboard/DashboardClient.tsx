@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BarChart3, TrendingUp, Link as LinkIcon, DollarSign, MousePointer, ArrowUpRight, ExternalLink, Copy } from "lucide-react";
+import { BarChart3, TrendingUp, Link as LinkIcon, DollarSign, MousePointer, ArrowUpRight, Copy, Check } from "lucide-react";
 import StatCard from "@/components/ui/StatCard";
 import { formatCurrency, formatNumber, formatPercent } from "@/lib/utils";
 import { useState } from "react";
@@ -22,14 +22,24 @@ const mockLinks = [
 
 const chartData = [28, 42, 35, 58, 50, 72, 65, 80, 70, 88, 78, 95];
 
-export default function DashboardClient({ userName }: { userName: string }) {
+export default function DashboardClient({
+  userName,
+  affiliateCode,
+}: {
+  userName: string;
+  affiliateCode?: string;
+}) {
   const [copied, setCopied] = useState<string | null>(null);
 
-  const copy = (code: string) => {
-    navigator.clipboard.writeText(`https://lj-affiliate.com/r/${code}`);
-    setCopied(code);
+  const copy = (text: string, key: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(key);
     setTimeout(() => setCopied(null), 2000);
   };
+
+  const affiliateLink = affiliateCode
+    ? `https://lj-affiliate.com/r/${affiliateCode}`
+    : null;
 
   const stats = [
     { title: "Clics totaux", value: formatNumber(mockStats.totalClicks), icon: MousePointer, color: "white" as const },
@@ -44,18 +54,47 @@ export default function DashboardClient({ userName }: { userName: string }) {
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="flex items-center justify-between"
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
-          <h1 className="text-xl font-semibold text-white tracking-tight">Bonjour, {userName}</h1>
+          <h1 className="text-xl font-semibold text-white tracking-tight">
+            Bonjour, {userName}
+          </h1>
           <p className="text-[13px] text-white/40 mt-0.5">Voici vos performances du moment</p>
         </div>
-        <div className="flex items-center gap-2 text-[13px] text-white/40 bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-1.5">
+        <div className="flex items-center gap-2 text-[13px] text-white/40 bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-1.5 self-start sm:self-auto">
           Conversion
           <span className="text-[#ff5050] font-semibold">{formatPercent(mockStats.conversionRate)}</span>
         </div>
       </motion.div>
+
+      {/* Affiliate link banner (si code disponible) */}
+      {affiliateLink && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05, duration: 0.5, ease: "easeOut" }}
+          className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-2xl bg-[#ff2020]/06 border border-[#ff2020]/15 overflow-hidden"
+        >
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#ff2020]/25 to-transparent" />
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-[#ff2020]/15 border border-[#ff2020]/20 flex items-center justify-center flex-shrink-0">
+              <LinkIcon className="w-3.5 h-3.5 text-[#ff5050]" />
+            </div>
+            <div>
+              <div className="text-[11px] font-semibold text-white/35 uppercase tracking-wider mb-0.5">Votre lien affilié</div>
+              <code className="text-[13px] font-mono text-[#ff5050]">{affiliateLink}</code>
+            </div>
+          </div>
+          <button
+            onClick={() => copy(affiliateLink, "main")}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#ff2020]/12 border border-[#ff2020]/20 text-[12px] font-medium text-[#ff5050] hover:bg-[#ff2020]/18 transition-colors flex-shrink-0"
+          >
+            {copied === "main" ? <><Check className="w-3 h-3 text-green-400" /><span className="text-green-400">Copié !</span></> : <><Copy className="w-3 h-3" />Copier</>}
+          </button>
+        </motion.div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
@@ -64,12 +103,12 @@ export default function DashboardClient({ userName }: { userName: string }) {
         ))}
       </div>
 
-      {/* Chart + mini stats */}
+      {/* Chart + performance */}
       <div className="grid lg:grid-cols-3 gap-4">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
           className="lg:col-span-2 relative p-5 rounded-2xl bg-[#111113] border border-white/[0.06] overflow-hidden"
         >
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
@@ -88,8 +127,8 @@ export default function DashboardClient({ userName }: { userName: string }) {
                 key={i}
                 initial={{ scaleY: 0 }}
                 animate={{ scaleY: 1 }}
-                transition={{ delay: 0.35 + i * 0.04, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="flex-1 rounded-t-md origin-bottom transition-all hover:opacity-80 cursor-default"
+                transition={{ delay: 0.35 + i * 0.04, duration: 0.4, ease: "easeOut" }}
+                className="flex-1 rounded-t-md origin-bottom"
                 style={{
                   height: `${h}%`,
                   background: i === chartData.length - 1
@@ -109,16 +148,16 @@ export default function DashboardClient({ userName }: { userName: string }) {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.5, delay: 0.35, ease: "easeOut" }}
           className="relative p-5 rounded-2xl bg-[#111113] border border-white/[0.06]"
         >
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
           <div className="text-[14px] font-semibold text-white mb-4">Performance</div>
           <div className="space-y-4">
             {[
-              { label: "Clics / jour (moy.)", val: "163", max: 200 },
-              { label: "Conv. / mois", val: "231", max: 300 },
-              { label: "Taux de rebond", val: "28%", max: 100, invert: true },
+              { label: "Clics / jour (moy.)", val: "163", pct: 81 },
+              { label: "Conv. / mois", val: "231", pct: 77 },
+              { label: "Taux de rebond", val: "28%", pct: 28 },
             ].map((item, i) => (
               <div key={i}>
                 <div className="flex justify-between text-[12px] mb-1.5">
@@ -128,8 +167,8 @@ export default function DashboardClient({ userName }: { userName: string }) {
                 <div className="h-1 rounded-full bg-white/[0.05] overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: `${(parseInt(item.val) / item.max) * 100}%` }}
-                    transition={{ delay: 0.5 + i * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                    animate={{ width: `${item.pct}%` }}
+                    transition={{ delay: 0.5 + i * 0.1, duration: 0.7, ease: "easeOut" }}
                     className="h-full rounded-full bg-gradient-to-r from-[#ff2020] to-[#ff5050]"
                   />
                 </div>
@@ -143,7 +182,7 @@ export default function DashboardClient({ userName }: { userName: string }) {
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
         className="relative rounded-2xl bg-[#111113] border border-white/[0.06] overflow-hidden"
       >
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
@@ -186,8 +225,14 @@ export default function DashboardClient({ userName }: { userName: string }) {
                       <code className="text-[11px] font-mono text-[#ff5050] bg-[#ff2020]/08 px-2 py-0.5 rounded-md border border-[#ff2020]/10">
                         {link.code}
                       </code>
-                      <button onClick={() => copy(link.code)} className="text-white/25 hover:text-white/60 transition-colors">
-                        {copied === link.code ? <span className="text-green-400 text-[10px]">Copié</span> : <Copy className="w-3 h-3" />}
+                      <button
+                        onClick={() => copy(`https://lj-affiliate.com/r/${link.code}`, link.code)}
+                        className="text-white/25 hover:text-white/60 transition-colors"
+                      >
+                        {copied === link.code
+                          ? <Check className="w-3 h-3 text-green-400" />
+                          : <Copy className="w-3 h-3" />
+                        }
                       </button>
                     </div>
                   </td>
