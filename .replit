@@ -55,7 +55,5 @@ externalPort = 80
 [userenv]
 
 [userenv.shared]
-NEXT_PUBLIC_SUPABASE_URL = "https://placeholder.supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY = "placeholder-anon-key"
 NEXT_PUBLIC_APP_URL = "https://d87b0c49-75d8-4ef0-884f-643c1d987830-00-tug2shwb8pvd.kirk.replit.dev"
 NODE_ENV = "development"
