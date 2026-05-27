@@ -1,23 +1,32 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { TrendingUp, Mail, Lock, Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 import { login } from "@/app/actions/auth";
-import { useState } from "react";
 
 const initialState = { error: null as string | null };
+
+/* ── Sous-composant pour lire les searchParams sans hydration mismatch ── */
+function SearchParamError() {
+  const params = useSearchParams();
+  const err = params.get("error");
+  if (!err) return null;
+  const msg = err === "auth_error"
+    ? "Lien expiré. Veuillez vous reconnecter."
+    : "Une erreur s'est produite.";
+  return (
+    <div className="mb-5 p-3 rounded-xl bg-[#ff2020]/10 border border-[#ff2020]/20 text-[#ff6060] text-[13px]">
+      {msg}
+    </div>
+  );
+}
 
 export default function LoginPage() {
   const [state, formAction, isPending] = useActionState(login, initialState);
   const [showPassword, setShowPassword] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
-
-  /* Afficher l'erreur venant du searchParam (ex: lien expiré) */
-  const searchError = typeof window !== "undefined"
-    ? new URLSearchParams(window.location.search).get("error")
-    : null;
 
   return (
     <div className="min-h-screen bg-[#0a0a0b] flex">
@@ -91,19 +100,23 @@ export default function LoginPage() {
           <h1 className="text-[24px] font-bold tracking-tight mb-1">Bon retour</h1>
           <p className="text-[13px] text-white/40 mb-8">Connectez-vous à votre espace affilié</p>
 
-          {/* Erreurs */}
-          {(state.error || searchError) && (
+          {/* Erreur URL param (confirmation email expirée etc.) */}
+          <Suspense fallback={null}>
+            <SearchParamError />
+          </Suspense>
+
+          {/* Erreur action serveur */}
+          {state.error && (
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               className="mb-5 p-3 rounded-xl bg-[#ff2020]/10 border border-[#ff2020]/20 text-[#ff6060] text-[13px]"
             >
-              {state.error || (searchError === "auth_error" ? "Lien expiré. Veuillez vous reconnecter." : "Une erreur s'est produite.")}
+              {state.error}
             </motion.div>
           )}
 
-          <form ref={formRef} action={formAction} className="space-y-4">
-            {/* Email */}
+          <form action={formAction} className="space-y-4">
             <div>
               <label className="block text-[11px] font-semibold text-white/40 mb-1.5 uppercase tracking-wider">
                 Email
@@ -121,7 +134,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Mot de passe */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="text-[11px] font-semibold text-white/40 uppercase tracking-wider">
