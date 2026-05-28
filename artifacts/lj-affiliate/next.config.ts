@@ -13,10 +13,16 @@ const nextConfig: NextConfig = {
     serverActions: {
       allowedOrigins: [
         "*.replit.dev",
+        "*.replit.dev:*",
         "*.kirk.replit.dev",
+        "*.kirk.replit.dev:*",
         "*.janeway.replit.dev",
+        "*.janeway.replit.dev:*",
         "*.replit.app",
+        "*.replit.app:*",
+        "localhost",
         "localhost:3000",
+        "localhost:*",
       ],
     },
   },
