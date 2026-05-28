@@ -50,6 +50,27 @@
 .animate-float-orb   { animation: float-orb 8s ease-in-out infinite; }
 .animate-float-orb-slow { animation: float-orb 10s ease-in-out infinite 3s; }
 
+@keyframes grow-bar {
+  from { transform: scaleY(0); opacity: 0; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.6; transform: scale(0.85); }
+}
+.grow-bar        { animation: grow-bar 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; transform-origin: bottom; }
+.animate-count   { animation: count-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-shimmer { animation: shimmer 2.5s linear infinite; }
+.pulse-dot       { animation: pulse-dot 2s ease-in-out infinite; }
+
 .delay-100 { animation-delay: 0.1s; }
 .delay-200 { animation-delay: 0.2s; }
 .delay-300 { animation-delay: 0.3s; }
