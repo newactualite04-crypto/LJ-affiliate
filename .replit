@@ -57,3 +57,6 @@ externalPort = 80
 [userenv.shared]
 NEXT_PUBLIC_APP_URL = "https://d87b0c49-75d8-4ef0-884f-643c1d987830-00-tug2shwb8pvd.kirk.replit.dev"
 NODE_ENV = "development"
+
+[nix]
+packages = ["nano"]
